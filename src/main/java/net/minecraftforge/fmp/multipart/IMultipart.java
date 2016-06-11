@@ -8,6 +8,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.color.IBlockColor;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumDyeColor;
@@ -348,5 +349,10 @@ public interface IMultipart extends ICapabilityProvider
      * {@link MultipartSpecialRenderer}.
      */
     public boolean hasFastRenderer();
+    
+    /**
+     * Gets the tint provider for this multipart.
+     */
+    public IBlockColor getTint();
 
 }

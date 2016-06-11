@@ -20,6 +20,8 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.client.model.pipeline.LightUtil;
+import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.fmp.block.BlockCoverable;
 import net.minecraftforge.fmp.block.BlockMultipartContainer;
@@ -99,7 +101,35 @@ public class ModelMultipartContainer implements IBakedModel
 
         for (Pair<PartState, IBakedModel> p : models)
         {
-            quads.addAll(p.getValue().getQuads(p.getKey().extendedState, side, rand));
+            if (p.getKey().tintProvider == null)
+            {
+                quads.addAll(p.getValue().getQuads(p.getKey().extendedState, side, rand));
+            }
+            else
+            {
+                for (BakedQuad quad : p.getValue().getQuads(p.getKey().extendedState, side, rand))
+                {
+                    if (quad.hasTintIndex())
+                    {
+                        int color = p.getKey().tintProvider.colorMultiplier(p.getKey().extendedState, null, null, quad.getTintIndex());
+                        float b = (float)(color & 0xFF) / 0xFF;
+                        float g = (float)((color >>> 8) & 0xFF) / 0xFF;
+                        float r = (float)((color >>> 16) & 0xFF) / 0xFF;
+                        UnpackedBakedQuad.Builder builder = new UnpackedBakedQuad.Builder(quad.getFormat());
+                        builder.setApplyDiffuseLighting(quad.shouldApplyDiffuseLighting());
+                        builder.setQuadOrientation(quad.getFace());
+                        builder.setTexture(quad.getSprite());
+                        LightUtil.ItemConsumer consumer = new LightUtil.ItemConsumer(builder);
+                        consumer.setAuxColor(r, g, b, 1);
+                        quad.pipe(consumer);
+                        quads.add(builder.build());
+                    }
+                    else
+                    {
+                        quads.add(quad);
+                    }
+                }
+            }
         }
 
         return quads;

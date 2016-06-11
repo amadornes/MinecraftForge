@@ -3,6 +3,7 @@ package net.minecraftforge.fmp.multipart;
 import java.util.EnumSet;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.color.IBlockColor;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.ResourceLocation;
 import scala.collection.mutable.StringBuilder;
@@ -16,13 +17,16 @@ public class PartState
     public final IBlockState state, extendedState;
     public final EnumSet<BlockRenderLayer> renderLayers;
     public final ResourceLocation modelPath;
+    public final IBlockColor tintProvider;
 
-    public PartState(IBlockState state, IBlockState extendedState, EnumSet<BlockRenderLayer> renderLayers, ResourceLocation modelPath)
+    public PartState(IBlockState state, IBlockState extendedState, EnumSet<BlockRenderLayer> renderLayers, ResourceLocation modelPath,
+            IBlockColor tintProvider)
     {
         this.state = state;
         this.extendedState = extendedState;
         this.renderLayers = renderLayers;
         this.modelPath = modelPath;
+        this.tintProvider = tintProvider;
     }
 
     public static PartState fromPart(IMultipart part)
@@ -45,7 +49,7 @@ public class PartState
         IBlockState state = part.getActualState(MultipartRegistry.getDefaultState(part).getBaseState());
         IBlockState extendedState = part.getExtendedState(state);
 
-        return new PartState(state, extendedState, renderLayers, path);
+        return new PartState(state, extendedState, renderLayers, path, part.getTint());
     }
 
     @Override
@@ -59,6 +63,7 @@ public class PartState
     public String toString()
     {
         return new StringBuilder().append("(state=").append(state).append(", extendedState=").append(extendedState)
-                .append(", renderLayers=").append(renderLayers).append(", modelPath=").append(modelPath).append(")").toString();
+                .append(", renderLayers=").append(renderLayers).append(", modelPath=").append(modelPath)
+                .append(", tintProvider=").append(tintProvider).append(")").toString();
     }
 }
